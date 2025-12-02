@@ -1,0 +1,10 @@
+---
+- name: Demo on using variables
+  hosts: all
+  vars:
+    my_var: pink
+  tasks:
+  - name: Display the variable usage
+    ansible.builtin.debug:
+      msg: "The custom variable has the value {{ my_var }}"
+...

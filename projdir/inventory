@@ -1,0 +1,10 @@
+[webservers]
+servera
+
+[dbservers]
+serverc
+serverd
+
+[mydc:children]
+webservers
+dbservers

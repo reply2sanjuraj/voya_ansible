@@ -1,0 +1,10 @@
+---
+- name: Collect the memory information 
+  hosts: webservers
+  gather_facts: yes
+  tasks:
+  - name: Create the sysinfo.txt file
+    ansible.builtin.copy:
+      content: "The system has {{ ansible_facts['memfree_mb'] }}Mib of free memory."
+      dest: /tmp/sysinfo.txt
+...

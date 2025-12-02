@@ -1,0 +1,14 @@
+---
+- name: Statistics about the file 
+  hosts: webservers
+  tasks:
+  - name: Verify the checksum of a file 
+    ansible.builtin.stat:
+      path: /tmp/test
+      checksum_algorithm: md5
+    register: result
+
+  - name: Print the checksum 
+    ansible.builtin.debug:
+      msg: "The checksum of the file is {{ result.stat.checksum }}"
+...

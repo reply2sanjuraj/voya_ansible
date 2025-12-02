@@ -1,0 +1,15 @@
+---
+- name: Ansible custom facts
+  hosts: webservers
+  become: true
+  tasks:
+  - name: Display the facts 
+    ansible.builtin.debug:
+      var: ansible_facts
+
+  - name: Create the directory structure
+    ansible.builtin.file:
+      path: /etc/ansible/facts.d
+      state: directory
+      recurse: yes
+...

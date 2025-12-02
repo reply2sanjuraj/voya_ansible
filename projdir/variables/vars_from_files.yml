@@ -1,0 +1,15 @@
+---
+- name: Using the variables from file
+  hosts: all
+  become: true
+  vars_files:
+  - userinfo.yml
+  tasks:
+  - name: Create the user based on the variable defined in another file
+    ansible.builtin.user:
+      name: "{{ myuser }}"
+      uid: 4005
+      shell: /bin/bash
+      update_password: on_create
+      password: '$6$WxfGzmeOjPyS2P1v$TJ9e3rwlLbaS.m5cod5rA5XrAHeZGeN5OfHwwcaXa36dGx4Kvv5QfoYEywGCWXRGcMRfRV1XB7LvD/jts.eE/0'
+...

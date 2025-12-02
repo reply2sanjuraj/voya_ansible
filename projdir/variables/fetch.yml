@@ -1,0 +1,10 @@
+---
+- name: USe the fetch module to retrieve the log files 
+  hosts: webservers
+  become: true
+  tasks:
+  - name: Fetch the /var/log/secure file from the managed hosts
+    ansible.builtin.fetch:
+      src: /var/log/secure
+      dest: manage-files/backup
+...

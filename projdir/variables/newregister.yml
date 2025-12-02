@@ -1,0 +1,17 @@
+---
+- name: Register variables example for specific content from the registered variable
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: Looping Test
+    ansible.builtin.shell: "echo This is my item: {{ item }}"
+    loop:
+    - one
+    - two
+    register: echo_results
+
+  - name: Display the results
+    ansible.builtin.debug:
+      msg: "the output is {{ item['stdout'] }}"
+    loop: "{{ echo_results['results'] }}"
+...

@@ -1,0 +1,15 @@
+---
+- name: Create the user 
+  hosts: all
+  become: true
+  vars_files:
+  - secret.yml
+  tasks:
+  - name: Create the user as specified in the vault file
+    ansible.builtin.user:
+      name: "{{ myuser }}"
+      state: present
+      update_password: on_create
+      shell: /bin/bash
+      password: '$6$WxfGzmeOjPyS2P1v$TJ9e3rwlLbaS.m5cod5rA5XrAHeZGeN5OfHwwcaXa36dGx4Kvv5QfoYEywGCWXRGcMRfRV1XB7LvD/jts.eE/0'
+...

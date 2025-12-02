@@ -1,0 +1,11 @@
+---
+- name: Purpose of the playbook
+  hosts: managedhost
+  tasks:
+  - name: Task1
+    fqcn:
+      argument1: value1
+  - name: Task2
+    fqcn:
+      argument1: value1
+...
