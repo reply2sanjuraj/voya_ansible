@@ -1,0 +1,19 @@
+---
+- name: Not using a proper module to perform the task
+  hosts: web
+  become: true
+  tasks:
+  - name: Install package
+    ansible.builtin.shell: yum -y install httpd
+
+  - name: restart apache
+    ansible.builtin.service: 
+      name: httpd
+      state: restarted 
+      enabled: true
+
+  - name: Print the custom message
+    ansible.builtin.debug:
+      msg: "Web server deployment is in progress"
+...
+

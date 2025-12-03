@@ -1,0 +1,27 @@
+---
+- name: Usage of ignore errors
+  hosts: dev
+  become: true
+  vars:
+    package: http
+  tasks:
+  - name: Install the {{ package }}
+    ansible.builtin.dnf:
+      name: "{{ package }}"
+      state: latest 
+    ignore_errors: true
+
+  - name: Display the crond service status 
+    ansible.builtin.command: systemctl status crond
+    register: svc_status
+
+  - name: Display the result
+    ansible.builtin.debug:
+      var: svc_status
+
+  - name: Update the crond
+    ansible.builtin.service:
+      name: crond
+      state: restarted
+      enabled: true
+...

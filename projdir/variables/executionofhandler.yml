@@ -1,0 +1,34 @@
+---
+- name: Understanding handler execution order
+  hosts: all
+  become: true
+  tasks:
+  - name: Print the custom message
+    ansible.builtin.debug:
+      msg: "Showing handlers demo"
+
+  - name: Install package
+    ansible.builtin.yum: 
+      name: httpd 
+      state: latest
+    notify: restart apache
+
+  - name: Display the stats of a file 
+    ansible.builtin.file:
+      path: /etc/fstab
+      state: touch
+    register: file_stats
+    notify: Result
+
+  handlers:
+  - name: Result
+    ansible.builtin.debug:
+      var: file_stats
+
+  - name: restart apache
+    ansible.builtin.service: 
+      name: httpd 
+      state: restarted 
+      enabled: true
+...
+

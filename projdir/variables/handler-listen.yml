@@ -1,0 +1,26 @@
+---
+- name: Handler
+  hosts: dev
+  become: true
+  force_handlers: true
+  tasks:
+  - name: Install the package
+    notify: 
+    - restart apache
+    ansible.builtin.dnf:
+      name: httpd
+      state: latest
+    register: pkg_status
+
+  - name: Content to be serve
+    ansible.builtin.copy:
+      content: "Example web content" 
+      dest: /var/www/htm/index.html
+
+  handlers:
+  - name: restart apache
+    ansible.builtin.service:
+      name: httpd
+      state: restarted
+      enabled: true 
+...

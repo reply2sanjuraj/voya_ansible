@@ -1,0 +1,15 @@
+---
+- name: Not using a proper module to perform the task
+  hosts: web
+  become: true
+  tasks:
+  - name: Install package
+    ansible.builtin.dnf:
+      name: vsftpd
+      state: latest
+
+  - name: Print the custom message
+    ansible.builtin.debug:
+      msg: "Web server deployment is in progress"
+...
+

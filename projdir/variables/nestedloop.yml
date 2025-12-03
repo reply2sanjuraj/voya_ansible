@@ -1,0 +1,19 @@
+---
+- name: Create users with different groups
+  hosts: dev
+  become: true
+  tasks:
+  - name: Create the group
+    ansible.builtin.group:
+      name: apacheadmin
+      state: present
+
+  - name: Create the user from the list 
+    loop:
+      - { name: 'testuser1', groups: 'wheel' }
+      - { name: 'testuser2', groups: 'apacheadmin' }
+    ansible.builtin.user:
+      name: "{{ item.name }}"
+      groups: "{{ item.groups }}"
+      state: present
+...

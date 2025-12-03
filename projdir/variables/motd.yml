@@ -1,0 +1,10 @@
+---
+- name: Create the list of hosts in /etc/motd
+  hosts: all
+  become: true
+  tasks:
+  - name: Create the /etc/motd file 
+    ansible.builtin.template:
+      src: motd.j2
+      dest: /etc/motd
+...

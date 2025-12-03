@@ -1,0 +1,4 @@
+---
+- name: Deploy a web server 
+  ansible.builtin.import_playbook: web.yml
+...

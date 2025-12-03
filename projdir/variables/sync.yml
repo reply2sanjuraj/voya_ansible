@@ -2,8 +2,11 @@
 - name: Create a file
   hosts: all
   tasks:
+  - name: Print the ansible facts
+    ansible.builtin.debug:
+      var: ansible_facts
   - name: Create the file
-    ansible.builtin.file:
-      path: /tmp/test.txt
-      state: touch
+    ansible.builtin.copy:
+      content: "The system has the IPv4 address as {{ ansible_default_ipv4.address }}\n"
+      dest: /tmp/myinfo.txt
 ...

@@ -1,0 +1,13 @@
+---
+- name: List used in an proper way
+  hosts: web
+  become: true
+  tasks:
+  - name: Install package
+    ansible.builtin.yum: 
+      name: 
+        - httpd
+        - firewalld
+      state: latest
+...
+

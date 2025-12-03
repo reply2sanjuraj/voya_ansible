@@ -8,4 +8,13 @@
   - name: Task2
     fqcn:
       argument1: value1
+- name: Second Play
+  hosts: targetsystem
+  tasks:
+  - name: Task1
+    fqcn:
+      argument1: value1
+  - name: Task2
+    fqcn: 
+      argument2: value2
 ...

@@ -1,0 +1,36 @@
+---
+- name: manage services
+  hosts: webservers
+  gather_facts: false
+  become: true
+  tasks:
+  - name: Install the package
+    ansible.builtin.dnf:
+      name: httpd
+  - name: Configure the web server
+    ansible.builtin.copy:
+      content: "Hello World"
+      dest: /var/www/html/index.html
+  - name: Start and enable the httpd
+    ansible.builtin.service:
+      name: httpd
+      state: started
+      enabled: true
+  - name: Open the ports
+    ansible.posix.firewalld:
+      state: enabled
+      service: http
+      immediate: true
+      permanent: true
+- name: Verify the web server access
+  hosts: localhost
+  tasks:
+  - name: Check the web server access
+    ansible.builtin.uri:
+      url: http://servera.lab.example.com
+      return_content: yes
+    register: status
+  - name: Display the result
+    ansible.builtin.debug:
+      var: status.content
+...

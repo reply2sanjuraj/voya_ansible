@@ -1,0 +1,19 @@
+---
+- name: Usage of block and rescue
+  hosts: dev
+  become: true
+  tasks:
+  - block:
+    - name: Install the package
+      ansible.builtin.dnf:
+        name: vsftpd
+        state: latest
+    rescue:
+    - name: Custom message
+      ansible.builtin.debug:
+        msg: "Rescue works"
+    always:
+    - name: Print custom message - always
+      ansible.builtin.debug:
+        msg: "I will always run"
+...

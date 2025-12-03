@@ -1,5 +1,15 @@
 [webservers]
 servera
 
+[web]
+serverb
+
+[dev]
+serverc
+
+[ce]
+serverc
+serverd
+
 [webservers:vars]
 my_var=telnet
