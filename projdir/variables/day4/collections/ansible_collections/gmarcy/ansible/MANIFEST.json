@@ -1,0 +1,30 @@
+{
+ "collection_info": {
+  "namespace": "gmarcy",
+  "name": "ansible",
+  "version": "1.0.0",
+  "authors": [
+   "Glenn Marcy <gmarcy@us.ibm.com>"
+  ],
+  "readme": "README.md",
+  "tags": [],
+  "description": "A collection of ansible roles",
+  "license": [
+   "Apache-2.0"
+  ],
+  "license_file": null,
+  "dependencies": {},
+  "repository": "http://github.com/gmarcy/ansible-automation",
+  "documentation": "http://docs.example.com",
+  "homepage": "http://example.com",
+  "issues": "https://github.com/gmarcy/ansible-automation/issues/tracker"
+ },
+ "file_manifest_file": {
+  "name": "FILES.json",
+  "ftype": "file",
+  "chksum_type": "sha256",
+  "chksum_sha256": "5324999d3594006032ecc506eb8ad6ad5973a2882ad13b39f0cd8c4339cf3b58",
+  "format": 1
+ },
+ "format": 1
+}

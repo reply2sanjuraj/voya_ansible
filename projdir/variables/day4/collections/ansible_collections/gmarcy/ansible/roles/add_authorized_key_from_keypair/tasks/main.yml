@@ -1,0 +1,9 @@
+---
+
+- name: Add keypair to authorized_keys on ssh_host
+  ansible.posix.authorized_key:
+    user: "{{ ssh_user }}"
+    key: "{{ ssh_pubkey }}"
+    comment: "{{ ssh_comment }}"
+    state: present
+  delegate_to: "{{ ssh_host }}"

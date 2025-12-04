@@ -1,0 +1,15 @@
+---
+- name: Remove the repos 
+  hosts: yumclient
+  become: true
+  tasks:
+  - name: Remove the file
+    ansible.builtin.file:
+      path: "/etc/yum.repos.d/{{ item }}"
+      state: absent
+    loop: 
+      - rhel_dvd.repo
+      - base.repo
+      - appstream.repo
+     
+...

@@ -1,0 +1,10 @@
+---
+- name: Create the group
+  hosts: all
+  become: true
+  tasks:
+  - name: Create the group
+    ansible.builtin.group:
+      name: sysopsadmin
+      state: present
+...

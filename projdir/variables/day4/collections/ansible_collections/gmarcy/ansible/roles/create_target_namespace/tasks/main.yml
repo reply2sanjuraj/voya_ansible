@@ -1,0 +1,11 @@
+---
+
+- name: Ensure target_namespace exists
+  kubernetes.core.k8s:
+    api_key: "{{ api_key | default(omit) }}"
+    kind: Namespace
+    kubeconfig: "{{ kubeconfig_path }}"
+    name: "{{ item }}"
+    state: present
+  register: _result
+  loop: "{{ target_namespaces | default([target_namespace]) }}"

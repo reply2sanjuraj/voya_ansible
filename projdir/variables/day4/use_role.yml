@@ -1,0 +1,18 @@
+---
+- name: Using the role 
+  hosts: webservers
+  become: true
+  pre_tasks:
+  - name: Print custom message
+    ansible.builtin.debug:
+      msg: "Deployment of the web server is initialized by calling the role sanju.apache"
+
+  roles:
+  - sanju.apache
+
+  post_tasks:
+  - name: Print the result
+    ansible.builtin.debug:
+      msg: "Deployment was successful"
+       
+...

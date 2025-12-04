@@ -1,0 +1,23 @@
+---
+- name: Install the httpd package
+  ansible.builtin.dnf:
+    name: httpd
+    state: latest
+
+- name: Content to serve
+  ansible.builtin.copy:
+    content: "IT works\n"
+    dest: /var/www/html/index.html
+
+- name: Start and enable the httpd service
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: true
+
+- name: Open the ports
+  ansible.posix.firewalld:
+    service: http
+    state: enabled
+    immediate: true
+    permanent: true

@@ -1,0 +1,12 @@
+---
+- name: Deploy Apache Web server
+  hosts: webservers
+  become: true
+  tasks:
+  - name: Import the tasks
+    vars:
+      web_package: httpd
+      web_service: httpd
+      rule_service: http
+    ansible.builtin.import_tasks: task-with-vars.yml
+...

@@ -1,0 +1,197 @@
+---
+
+- name: Define local facts
+  set_fact:
+    setup_keypair_path: "{{ hostvars['localhost-facts'].local_home + '/.ssh/setup_id_' + hostvars['localhost-facts'].ssh_keytype }}"
+    setup_ssh_config: "{{ hostvars['localhost-facts'].local_home + '/.ssh/setup_config' }}"
+
+- name: Set setup_secrets_hostvars
+  ansible.builtin.set_fact:
+    setup_secrets_hostvars: "{{ hostvars['setup-secrets'] }}"
+    _secrets: []
+  no_log: "{{ setup_secrets_hidden | default(true) }}"
+
+- when: hostvars['playbook-facts'].container_run|bool
+  name: If running from the container we read secrets from podman run secrets
+  no_log: "{{ setup_secrets_hidden | default(true) }}"
+  block:
+
+    - name: Collect requested secrets from container
+      ansible.builtin.set_fact:
+        _secrets: "{{ _secrets | union([item | combine({'secret_path': _secret_path})]) }}"
+      loop: "{{ setup_secrets_hostvars.secrets }}"
+      vars:
+        _secret_path: "{{ '/run/secrets/' + item.secret_name }}"
+
+- when: not hostvars['playbook-facts'].container_run|bool
+  name: If not running from the container we read secrets from paths set in environment variables
+  no_log: "{{ setup_secrets_hidden | default(true) }}"
+  block:
+
+    - name: Collect requested secrets from environment
+      ansible.builtin.set_fact:
+        _secrets: "{{ _secrets | union([item | combine({'secret_path': _secret_path})]) }}"
+      loop: "{{ setup_secrets_hostvars.secrets }}"
+      vars:
+        _secret_path: "{{ lookup('env', item.envvar_name) }}"
+      when: lookup('env',item.envvar_name) | default('') | length > 0
+
+- name: Check for secret files
+  ansible.builtin.stat:
+    path: "{{ secret['secret_path'] }}"
+  register: _result_secret_stat
+  loop: "{{ _secrets }}"
+  loop_control:
+    loop_var: secret
+  no_log: "{{ setup_secrets_hidden | default(true) }}"
+  when: secret['secret_path'] | default('') | length > 0
+
+- name: Put secret paths into a dictionary
+  ansible.builtin.set_fact:
+    _setup_secrets: "{{ _playbook_secrets | default({}) | combine({_key: _val}) }}"
+  register: _result_secret_values
+  loop: "{{ _result_secret_stat.results }}"
+  loop_control:
+    loop_var: path
+  vars:
+    _key: "{{ path.secret.secret_name }}"
+    _val: "{{ path.stat.path }}"
+  no_log: "{{ setup_secrets_hidden | default(true) }}"
+  when: path.stat.exists | default(false)
+
+- name: Add secrets to playbook secrets
+  set_fact:
+    secrets: "{{ secrets | default({}) | combine(_setup_secrets) }}"
+  no_log: "{{ setup_secrets_hidden | default(true)}}"
+  when: _setup_secrets is defined
+
+- name: Clear facts
+  ansible.builtin.set_fact:
+    _secrets: []
+    _result_secret_stat: {}
+    _result_secret_values: {}
+    _setup_secrets: {}
+    setup_secrets_hostvars: {}
+  no_log: "{{ setup_secrets_hidden | default(true) }}"
+
+- name: Parse setup_host_spec into a dictionary if defined
+  ansible.builtin.set_fact:
+    setup_host_map: "{{ setup_host_spec | from_json }}"
+  when: setup_host_spec is defined
+
+- name: Define default_setup_host_name
+  ansible.builtin.set_fact:
+    default_setup_host_name: "{{ 'setup-host' if (setup_host_map is not defined or setup_host_map['host'] is not defined) else setup_host_map['host'] }}"
+
+- name: Define default_setup_ansible_host
+  ansible.builtin.set_fact:
+    default_setup_ansible_host: "{{ 'localhost' if (setup_host_map is not defined or setup_host_map['ansible_host'] is not defined) else setup_host_map['ansible_host'] }}"
+
+- name: Define setup_host_name
+  ansible.builtin.set_fact:
+    setup_host_name: "{{ default_setup_host_name if (('setup_host' not in groups) or ((groups['setup_host'] | list | length) == 0)) else groups['setup_host'][0] }}"
+
+- name: Add a default entry for localhost if there are no setup_host members
+  ansible.builtin.add_host:
+    name: "{{ setup_host_name }}"
+    group: 'setup_host'
+    ansible_host: "{{ default_setup_ansible_host }}"
+    ansible_connection: "{{ 'local' if (default_setup_ansible_host == 'localhost') else 'smart' }}"
+    target: "{{ setup_host_name }}"
+  when: "('setup_host' not in groups) or ((groups['setup_host'] | list | length) == 0)"
+
+- name: Add ansible_host for setup_host if not defined
+  ansible.builtin.add_host:
+    name: "{{ setup_host_name }}"
+    group: 'setup_host'
+    ansible_host: "{{ hostvars[hostvars[setup_host_name].target].ansible_host }}"
+  when: "hostvars[setup_host_name].ansible_host is not defined"
+
+- name: Add target for setup_host if not defined
+  ansible.builtin.add_host:
+    name: "{{ setup_host_name }}"
+    group: 'setup_host'
+    target: "{{ setup_host_name }}"
+  when: "hostvars[setup_host_name].target is not defined"
+
+- name: Change the ansible_host to the ansible_fqdn of the host running the container
+  ansible.builtin.add_host:
+    name: "{{ setup_host_name }}"
+    group: 'setup_host'
+    ansible_host: "{{ lookup('community.general.dig', ansible_facts.fqdn) }}"
+    ansible_connection: 'smart'
+  when: hostvars['playbook-facts'].container_run and (hostvars[setup_host_name].ansible_connection | default('') == 'local')|bool
+
+- name: Add local_install fact
+  ansible.builtin.add_host:
+    name: "playbook-facts"
+    local_install: "{{ (hostvars[setup_host_name].ansible_connection | default('') == 'local')|bool }}"
+
+- name: Add remote ssh params for setup_host when install is not local
+  ansible.builtin.add_host:
+    name: "{{ setup_host_name }}"
+    group: 'setup_host'
+    ansible_ssh_user: "{{ hostvars['playbook-facts'].remote_user }}"
+
+- name: Create .ssh folder if needed
+  ansible.builtin.file:
+    path: "{{ hostvars['localhost-facts'].local_home + '/.ssh' }}"
+    state: directory
+    mode: 0700
+
+- name: Copy setup ssh key secret into ~/.ssh
+  ansible.builtin.copy:
+    content: "{{ lookup('unvault', secrets['setup-ssh-key']) }}"
+    dest: "{{ setup_keypair_path }}"
+    mode: '0600'
+
+- name: Add ansible_ssh_extra_args to setup host
+  ansible.builtin.add_host:
+    name: "{{ setup_host_name }}"
+    group: 'setup_host'
+    ansible_ssh_extra_args: "-i {{ hostvars['setup-facts'].setup_keypair_path }}"
+
+- name: Load hypervisor_hosts_spec from yaml into a list of dictionaries
+  ansible.builtin.set_fact:
+    hypervisor_hosts_map_list: "{{ hypervisor_hosts_spec | from_json }}"
+  when: hypervisor_hosts_spec is defined
+
+- name: Build setup_hypervisors group
+  ansible.builtin.add_host:
+    name: "{{ item['host'] }}"
+    groups: 'setup_hypervisors'
+    ansible_connection: 'smart'
+    ansible_user: "{{ hostvars['playbook-facts'].remote_user }}"
+    ansible_host: "{{ item['ansible_host'] }}"
+    ssh_hostname: "{{ item['ssh_hostname'] | default(omit) }}"
+    ssh_username: "{{ item['ssh_username'] | default(omit) }}"
+  loop: "{{ hypervisor_hosts_map_list | default([]) }}"
+
+- name: Add ansible_ssh_extra_args to setup_hypervisors group
+  ansible.builtin.add_host:
+    name: "{{ item }}"
+    groups: 'setup_hypervisors'
+    ansible_ssh_extra_args: "-F {{ hostvars['setup-facts'].setup_ssh_config }}"
+  loop: "{{ groups['setup_hypervisors'] }}"
+
+- name: Check if ssh config exists
+  ansible.builtin.stat:
+    path: "{{ hostvars['localhost-facts'].local_home + '/.ssh/config' }}"
+  register: _result_ssh_config_stat
+
+- name: Define setup_include_paths
+  ansible.builtin.set_fact:
+    setup_include_paths:
+      "{{ [_result_ssh_config_stat.stat.path] if (_result_ssh_config_stat.stat.exists) else [] }}"
+  delegate_to: 'localhost-facts'
+  delegate_facts: true
+
+- name: Setup the ansible host
+  import_role:
+    name: create_host_ssh_config
+  vars:
+    ssh_hosts: "{{ groups['setup_hypervisors'] }}"
+    ssh_keytype: "{{ hostvars['localhost-facts'].ssh_keytype }}"
+    keypair_path: "{{ hostvars['setup-facts'].setup_keypair_path }}"
+    config_path: "{{ hostvars['setup-facts'].setup_ssh_config }}"
+    include_paths: "{{ hostvars['localhost-facts'].setup_include_paths }}"

@@ -1,0 +1,28 @@
+---
+# tasks file for sanju.apache
+# Step 1: Install the packages 
+- name: Ensure that httpd package is installed
+  ansible.builtin.dnf:
+    name: httpd
+    state: latest
+
+# Step 2: Configure the web server 
+- name: Serve the content
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+# Step 3: Start and enable the service
+- name: Service is enabled and started
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: true
+
+# Step 4: Open the ports in firewall
+- name: Open the http port 
+  ansible.posix.firewalld:
+    service: http
+    state: enabled
+    immediate: true
+    permanent: true
