@@ -1,6 +1,9 @@
 [webservers]
 servera
 
-
 [yumclient]
 serverd
+
+
+[checksystem]
+serverc

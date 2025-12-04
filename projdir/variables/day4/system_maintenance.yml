@@ -1,0 +1,9 @@
+---
+- name: Reboot the system
+  hosts: checksystem
+  become: true
+  tasks:
+  - name: Reboot the host 
+    ansible.builtin.reboot:
+      reboot_timeout: 3600 
+...

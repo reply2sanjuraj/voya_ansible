@@ -1,6 +1,6 @@
 ---
 - name: Cron job for user devops
-  hosts: dev
+  hosts: webservers
   become: true
   tasks:
   - name: Create a cron job to execute a task every 2 minutes
