@@ -1,0 +1,7 @@
+---
+- name: Test the env 
+  hosts: all
+  roles:
+  - role: dev.apache
+    become: true
+...

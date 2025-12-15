@@ -1,0 +1,9 @@
+---
+- name: Test the env 
+  hosts: all
+  become: false
+  tasks:
+  - name: Check the access to the host
+    ansible.builtin.debug:
+      msg: "I am the host {{ inventory_hostname }}"
+...

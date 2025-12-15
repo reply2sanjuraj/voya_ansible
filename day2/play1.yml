@@ -1,0 +1,13 @@
+---
+- name: Test the env 
+  hosts: all
+  tasks:
+  - name: Check the access to the host
+    ansible.builtin.debug:
+      msg: "I am the host {{ inventory_hostname }}"
+  - name: Install the package
+    ansible.builtin.dnf:
+      name: tree
+      state: latest
+    become: true
+...

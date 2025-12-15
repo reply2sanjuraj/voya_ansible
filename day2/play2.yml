@@ -1,0 +1,28 @@
+---
+- name: Test the env 
+  hosts: web_servers
+  tasks:
+  - name: Check the access to the host
+    ansible.builtin.debug:
+      msg: "I am the host {{ inventory_hostname }}"
+  - name: Deploy a web server
+    block:
+      - name: Install the web package
+        ansible.builtin.dnf:
+          name: httpd
+          state: latest
+      - name: Ensure the document root exists
+        ansible.builtin.file:
+          path: /var/www/html
+          state: directory
+      - name: Start and enable the service
+        ansible.builtin.service:
+          name: httpd
+          state: started
+          enabled: true
+      - name: Content to be served 
+        ansible.builtin.copy:
+          content: "Example web content\n"
+          dest: /var/www/html/index.html
+    become: true
+...
