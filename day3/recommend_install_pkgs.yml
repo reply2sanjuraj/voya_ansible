@@ -1,0 +1,12 @@
+---
+- name: Recommended appraoch for installing packages 
+  hosts: all
+  become: true
+  tasks:
+  - name: Install packages
+    ansible.builtin.dnf:
+      name: 
+        - httpd
+        - tree
+        - vsftpd
+      state: latest

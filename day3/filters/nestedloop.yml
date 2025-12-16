@@ -1,0 +1,23 @@
+---
+- name: Using nested loop
+  hosts: all
+  become: true
+  tasks:
+  - name: Create the groups
+    ansible.builtin.group:
+      name: "{{ item }}"
+      state: present
+    loop: 
+    - sysadmin
+    - devopsadmin
+  - name: Create user and add them to the appropriate groups
+    ansible.builtin.user:
+      name: "{{ item.name }}"
+      state: present
+      groups: "{{ item.groups }}"
+    loop:
+    - name: sysadmin1
+      groups: sysadmin
+    - name: devopsadmin1
+      groups: devopsadmin
+...

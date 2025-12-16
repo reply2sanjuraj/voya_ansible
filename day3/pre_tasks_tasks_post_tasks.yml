@@ -1,0 +1,29 @@
+---
+- name: Demo on order of execution
+  hosts: all
+  become: true
+  pre_tasks:
+  - name: Remove apache
+    ansible.builtin.dnf:
+      name: httpd
+      state: absent
+  roles:
+  - role: dev.apache
+  tasks:
+  - name: Print custom message
+    ansible.builtin.debug:
+      msg: "Web server deployed"
+  post_tasks:
+  - name: Alert notification
+    ansible.builtin.debug:
+      msg: |
+        Deployment of the web server was done 
+        successfully this morning
+        
+#    community.mail.email:
+#      to: admin@serverd.lab.example.com
+#      subject: Deployment of web server
+#      body: | 
+#        Deployment of the web server was done 
+#        successfully this morning
+...

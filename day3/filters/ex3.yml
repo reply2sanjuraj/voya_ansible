@@ -1,0 +1,9 @@
+---
+- name: Using query plugins
+  hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Ensure files are listed
+    ansible.builtin.debug:
+      msg: "{{ query('ansible.builtin.lines', 'ls') }}"
+...

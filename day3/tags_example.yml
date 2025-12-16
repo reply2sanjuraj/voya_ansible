@@ -1,0 +1,59 @@
+---
+- name: Using tags
+  hosts: web
+  become: true
+  tasks:
+  - name: Install the web package
+    ansible.builtin.dnf:
+      name: httpd
+      state: latest
+    tags:
+    - setup
+  - name: Ensure the documentroot exists in the web server 
+    ansible.builtin.file:
+      path: /var/www/html
+      state: directory
+    tags:
+    - setup
+  - name: Configure the web server 
+    ansible.builtin.copy:
+      content: "Welcome to {{ ansible_facts['fqdn'] }} host\n"
+      dest: /var/www/html/index.html
+    tags:
+    - setup
+  - name: Open the ports
+    ansible.posix.firewalld:
+      service: http
+      immediate: true
+      permanent: true
+      state: enabled
+    tags:
+    - setup
+  - name: Enable and start the web service
+    ansible.builtin.service:
+      name: httpd
+      state: started
+      enabled: true
+    tags:
+    - setup
+  - name: Destroy the web server 
+    ansible.builtin.file:
+      path: /var/www/html
+      state: absent
+    tags:
+    - teardown
+  - name: Remove the package
+    ansible.builtin.dnf:
+      name: httpd
+      state: absent
+    tags:
+    - teardown
+  - name: Ensure firewall settings are proper
+    ansible.posix.firewalld:
+      service: http
+      immediate: true
+      permanent: true
+      state: disabled
+    tags:
+    - teardown
+...

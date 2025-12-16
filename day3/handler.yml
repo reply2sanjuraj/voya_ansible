@@ -1,0 +1,29 @@
+---
+- name: Deploy the web 
+  hosts: all
+  become: true
+  tasks:
+  - name: Install pkg
+    ansible.builtin.dnf:
+      name: httpd
+      state: latest
+  - name: Content to serve
+    ansible.builtin.copy:
+      content: "Welcome to {{ ansible_facts['fqdn'] }}\n"
+      dest: /var/www/html/index.html
+    notify: restart apache
+
+  - name: Update the web service 
+    ansible.builtin.service:
+      name: httpd
+      state: restarted
+      enabled: true
+
+  handlers: 
+  - name: abc
+    ansible.builtin.service:
+      name: httpd
+      state: restarted
+      enabled: true
+    listen: restart apache
+...
