@@ -1,0 +1,16 @@
+---
+- name: Delegate Fact Example
+  hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: Gather facts from web
+    ansible.builtin.setup:
+    delegate_to: "{{ item }}"
+    delegate_facts: true
+    loop: "{{ groups['web'] }}"
+    register: hostinfo
+
+  - name: Display the information
+    ansible.builtin.debug:
+      var: hostinfo
+... 

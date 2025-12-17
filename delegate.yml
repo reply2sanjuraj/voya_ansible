@@ -1,0 +1,11 @@
+---
+- name: Using default filter 
+  hosts: all
+  gather_facts: true
+  become: false
+  tasks:
+  - name: Use the variable my_var
+    ansible.builtin.debug:
+      msg: "The value for the variable {{ my_var | default('ansible') | capitalize }}. The task is delegated to {{ ansible_host }}."
+    delegate_to: serverc.lab.example.com
+...

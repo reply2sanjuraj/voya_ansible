@@ -1,0 +1,27 @@
+---
+# tasks file for dev.apache
+- name: Install the web package
+  ansible.builtin.dnf:
+    name: httpd
+    state: latest
+- name: Ensure the document root exists
+  ansible.builtin.file:
+    path: /var/www/html
+    state: directory
+- name: Start and enable the service
+  ansible.builtin.service:
+    name: httpd
+    state: started
+    enabled: true
+- name: Content to be served 
+  ansible.builtin.copy:
+    content: "Roles web content\n"
+    dest: /var/www/html/index.html
+
+- name: Firewall settings
+  ansible.posix.firewalld:
+    service: http
+    state: enabled
+    immediate: true
+    permanent: true
+

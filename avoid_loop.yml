@@ -1,0 +1,13 @@
+---
+- name: Installing packages with the help of a loop
+  hosts: all 
+  become: true
+  tasks:
+  - name: Install the packages
+    ansible.builtin.dnf:
+      name: "{{ item }}"
+      state: latest 
+    loop:
+    - httpd
+    - tree
+    - vsftpd

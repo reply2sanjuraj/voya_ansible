@@ -1,0 +1,12 @@
+---
+- name: Deploy a web server
+  hosts: all
+  become: true
+  run_once: true
+  roles:
+  - role: dev.apache
+  tasks:
+  - name: Print custom message
+    ansible.builtin.debug:
+      msg: "Web server deployed"
+...

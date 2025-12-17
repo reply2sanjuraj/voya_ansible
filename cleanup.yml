@@ -1,0 +1,13 @@
+---
+- name: Remove the seletced set of packages 
+  hosts: all
+  become: true
+  tasks:
+  - name: Remove the packages
+    ansible.builtin.dnf:
+      name: 
+      - httpd
+      - tree
+      - vsftpd
+      state: absent
+...

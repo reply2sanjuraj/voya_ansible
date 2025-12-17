@@ -1,0 +1,11 @@
+---
+- name: Usage of order directive 
+  hosts: all
+  order: reverse_inventory
+  serial: 2
+  tasks:
+  - name: Creating a test file in /tmp
+    ansible.builtin.copy:
+      content: 'This is a sample file'
+      dest: /tmp/test.out
+...
